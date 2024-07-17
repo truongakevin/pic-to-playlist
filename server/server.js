@@ -56,7 +56,12 @@ app.post('/analyze-photo', upload.single('image'), async (req, res) => {
             individualPlaylists = [...individualPlaylists, ...individualPlaylist];
         }
         const allTracks = [...combinedPlaylist, ...individualPlaylists];
-        const uniqueTracks = [...new Map(allTracks.map(track => [track.link, track])).values()];
+        const trackMap = new Map();
+        allTracks.forEach(track => {
+            const key = `${track.name}-${track.artist}`;
+            trackMap.set(key, track);
+        });
+        const uniqueTracks = [...trackMap.values()];
         // console.log('Generated playlist:', uniqueTracks);
         console.log('Generated playlist');
 
@@ -75,5 +80,5 @@ app.post('/analyze-photo', upload.single('image'), async (req, res) => {
 
 // start server
 app.listen(process.env.NODE_PORT, () => {
-    console.log(`Server listening at ${process.env.NODE_ADDRESS || 'http://localhost:3000'}`);
+    console.log(`Server listening at ${process.env.NODE_ADDRESS || 'http://localhost'}:${process.env.NODE_PORT || 3000}`);
 });

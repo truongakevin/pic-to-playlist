@@ -83,7 +83,7 @@ export default function App() {
         formData.append('image', { uri: image, name: filename, type: type });
       }
 
-      const NODE_ADDRESS = process.env.NODE_ADDRESS || 'http://localhost:3000';
+      const NODE_ADDRESS = `${process.env.NODE_ADDRESS}:${process.env.NODE_PORT}` || 'http://localhost:3000';
       const response = await fetch(`${NODE_ADDRESS}/analyze-photo`, {
         method: 'POST',
         body: formData,
@@ -165,6 +165,7 @@ const styles = StyleSheet.create({
     height: 'auto',
     resizeMode: 'contain',
     alignSelf: 'center',
+    borderRadius: 7,
   },
   activityIndicator: {
     marginBottom: 'auto',
