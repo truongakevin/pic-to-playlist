@@ -41,29 +41,27 @@ app.post('/analyze-photo', upload.single('image'), async (req, res) => {
         }
         console.log('File uploaded');
         // console.log('File uploaded:', req.file);
-        // console.log('Buffer uploaded:', req.file.buffer);
 
+        // Generate features based on image
         const features = await analyzeImage(req.file.buffer);
-        console.log('Image analysis features:', features);
+        console.log('Features obtained');
+        // console.log('Image analysis features:', features);
 
-        // Generate playlist for the combined features string
+        // Generate playlist for the combined and indvidual features string
         const combinedSearchString = features.map(feature => feature.feature).join(' ');
         const combinedPlaylist = await generatePlaylist(combinedSearchString);
-        // Generate playlists for each individual feature
         let individualPlaylists = [];
         for (const feature of features) {
             const individualPlaylist = await generatePlaylist(feature.feature);
             individualPlaylists = [...individualPlaylists, ...individualPlaylist];
         }
-        // Combine the results and remove duplicates
         const allTracks = [...combinedPlaylist, ...individualPlaylists];
         const uniqueTracks = [...new Map(allTracks.map(track => [track.link, track])).values()];
+        // console.log('Generated playlist:', uniqueTracks);
+        console.log('Generated playlist');
 
-        console.log('Generated playlist:', uniqueTracks);
 
         // // save file name base on features
-        // const featureBasedName = `${features.dominantColor}_${features.brightness}_${Date.now()}.jpg`;
-        // const filePath = `uploads/${featureBasedName}`;
         // const filePath = `uploads/${Date.now()}_${req.file.originalname}`;
         // fs.writeFileSync(filePath, req.file.buffer);
         // console.log('File saved to disk at:', filePath);
