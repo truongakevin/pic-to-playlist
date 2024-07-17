@@ -113,25 +113,29 @@ export default function App() {
         <ActivityIndicator size="large" color="#fff" style={styles.activityIndicator} />
       ) : (
         <>
-          {playlist.length > 0 ? (
+          {playlist.length > 0 &&
             <>
               <Features features={features} />
               <Playlist playlist={playlist} />
-              <CustomButton title="RETRY CONVERSION" onPress={uploadImage} />
             </>
-          ) : (
-            <>
-              {image && <CustomButton title="CONVERT TO PLAYLIST" onPress={uploadImage} />}
-            </>
-          )}
-          <View style={styles.uploadContainer}>
+          }
+          <View style={styles.buttonContainer}>
             {!image ? (
-              <>
-                <CustomButton title="TAKE PHOTO" onPress={takePhoto} />
-                <CustomButton title="UPLOAD PHOTO" onPress={pickImage} />
-              </>
+              <View style={styles.uploadContainer}>
+                <CustomButton title="TAKE" onPress={takePhoto} />
+                <CustomButton title="UPLOAD" onPress={pickImage} />
+              </View>
             ) : (
-              <CustomButton title="SUBMIT NEW PICTURE" onPress={() => { setImage(null); setFeatures([]); setPlaylist([]); }}/>
+              <>
+              <View style={styles.convertContainer}>
+                { playlist.length > 0 ? (
+                  <CustomButton title="RETRY" onPress={uploadImage} />
+                ) : (
+                  <CustomButton title="CONVERT" onPress={uploadImage} />
+                )}
+              </View>
+              <CustomButton title="NEW PICTURE" onPress={() => { setImage(null); setFeatures([]); setPlaylist([]); }}/>
+              </>
             )}
           </View>
         </>
@@ -182,10 +186,15 @@ const styles = StyleSheet.create({
     fontSize: 20,
     fontWeight: 'bold',
   },
-
-  uploadContainer: {
+  buttonContainer: {
     flexDirection: 'column',
     justifyContent: 'space-around',
     marginBottom: 75,
+  },
+  uploadContainer: {
+  },
+  convertContainer: {
+    marginHorizontal: 20,
+    flexDirection: 'row',
   }
 });
