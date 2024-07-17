@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text, Image, TouchableOpacity, FlatList, StyleSheet, Linking } from 'react-native';
+import { View, Text, Image, TouchableOpacity, StyleSheet, Linking } from 'react-native';
 import { Audio } from 'expo-av';
 
 const Playlist = ({ playlist }) => {
@@ -36,32 +36,23 @@ const Playlist = ({ playlist }) => {
     }
   };
 
-  const renderSong = ({ item }) => (
-    <View style={[styles.text, styles.songContainer]}>
-      <View style={styles.imageContainer}>
-        <Image source={{ uri: item.coverImage }} style={[styles.text, styles.coverImage]} />
-        <TouchableOpacity style={styles.playButton} onPress={() => handlePlayButtonPress(item.audio)}>
-          {isPlaying && currentSong === item.audio ? (
-            <View style={styles.pauseIcon} />
-          ) : (
-            <View style={styles.playIcon} />
-          )}
-        </TouchableOpacity>
-      </View>
-      <TouchableOpacity style={[styles.text, styles.songDetails]} onPress={() => handleSongNamePress(item.link)}>
-        <Text style={[styles.text, styles.songName]}>{item.name}</Text>
-        <Text style={[styles.text, styles.artistName]}>{item.artist}</Text>
-      </TouchableOpacity>
-    </View>
-  );
-
   return (
-    <FlatList
-      data={playlist}
-      renderItem={renderSong}
-      keyExtractor={(item, index) => index.toString()}
-      style={{ marginBottom: 25 }}
-    />
+    <View style={styles.playlistContainer}>
+      {playlist.map((item, index) => (
+        <View key={index} style={[styles.text, styles.songContainer]}>
+          <View style={styles.imageContainer}>
+            <Image source={{ uri: item.coverImage }} style={[styles.text, styles.coverImage]} />
+            <TouchableOpacity style={styles.playButton} onPress={() => handlePlayButtonPress(item.audio)}>
+              {isPlaying && currentSong === item.audio ? (<View style={styles.pauseIcon}/>) : (<View style={styles.playIcon} />)}
+            </TouchableOpacity>
+          </View>
+          <TouchableOpacity style={[styles.text, styles.songDetails]} onPress={() => handleSongNamePress(item.link)}>
+            <Text style={[styles.text, styles.songName]}>{item.name}</Text>
+            <Text style={[styles.text, styles.artistName]}>{item.artist}</Text>
+          </TouchableOpacity>
+        </View>
+      ))}
+    </View>
   );
 };
 
@@ -70,10 +61,15 @@ const styles = StyleSheet.create({
     color: '#fff',
     fontFamily: 'CircularStd-Bold',
   },
-  songContainer: {
+  playlistContainer: {
     marginHorizontal: 'auto',
     width: '95%',
+    marginBottom: 25,
+  },
+  songContainer: {
+    // backgroundColor: '#282828',
     justifyContent: 'space-between',
+    borderRadius: 10,
     flexDirection: 'row',
     alignItems: 'center',
     padding: 5,

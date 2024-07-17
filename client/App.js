@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { StyleSheet, Text, View, Image, Platform, ActivityIndicator, TouchableOpacity, ScrollView, LogBox } from 'react-native';
+import { StyleSheet, Text, View, Image, Platform, ActivityIndicator, TouchableOpacity, ScrollView } from 'react-native';
 import * as ImagePicker from 'expo-image-picker';
 import * as Font from 'expo-font';
 import AHImage from 'react-native-image-auto-height';
@@ -30,7 +30,6 @@ export default function App() {
 
   useEffect(() => {
     loadFonts().then(() => setFontsLoaded(true));
-    LogBox.ignoreLogs(['VirtualizedLists should never be nested']);
   }, []);
 
   const pickImage = async () => {
