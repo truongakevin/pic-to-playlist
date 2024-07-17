@@ -1,11 +1,20 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { View, Text, Image, TouchableOpacity, StyleSheet, Linking } from 'react-native';
 import { Audio } from 'expo-av';
 
 const Playlist = ({ playlist }) => {
   const [soundObject, setSoundObject] = useState(null);
   const [isPlaying, setIsPlaying] = useState(false);
-  const [currentSong, setCurrentSong] = useState("");
+  const [currentSong, setCurrentSong] = useState(null);
+  const [isLoading, setIsLoading] = useState(false);
+
+  useEffect(() => {
+    return () => {
+      if (soundObject) {
+        soundObject.unloadAsync().catch((error) => console.error('Failed to unload sound', error));
+      }
+    };
+  }, [soundObject]);
 
   const handleSongNamePress = (url) => {
     Linking.openURL(url);
@@ -13,26 +22,38 @@ const Playlist = ({ playlist }) => {
 
   const handlePlayButtonPress = async (url) => {
     try {
-      if (isPlaying && currentSong === url) {
-        await soundObject.pauseAsync();
-        setIsPlaying(false);
-      } else if (!isPlaying && currentSong === url) {
-        await soundObject.playAsync();
-        setIsPlaying(true);
+      if (isLoading) {
+        console.log('Audio is still loading...');
+        return;
+      }
+
+      if (soundObject && currentSong === url) {
+        if (isPlaying) {
+          await soundObject.pauseAsync();
+          setIsPlaying(false);
+        } else {
+          await soundObject.playAsync();
+          setIsPlaying(true);
+        }
       } else {
+        setIsLoading(true);
+
         if (soundObject) {
           await soundObject.stopAsync();
-          await soundObject.unloadAsync();
         }
+
         const newSoundObject = new Audio.Sound();
         await newSoundObject.loadAsync({ uri: url });
-        await newSoundObject.playAsync();
         setSoundObject(newSoundObject);
-        setIsPlaying(true);
         setCurrentSong(url);
+        await newSoundObject.playAsync();
+        setIsPlaying(true);
+        setIsLoading(false);
       }
     } catch (error) {
       console.error('Error playing audio:', error);
+      setIsLoading(false);
+      setIsPlaying(false);
     }
   };
 
