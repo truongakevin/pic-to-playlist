@@ -54,6 +54,7 @@ const generatePlaylist = async (search_string) => {
     artist: track.artists[0].name,
     link: track.external_urls.spotify,
     audio: track.preview_url,
+    caption: search_string,
   }));
 };
 
