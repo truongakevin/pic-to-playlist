@@ -77,8 +77,8 @@ def process_image(image_bytes):
 
         # Retrieve and print the top 5 categories and their probabilities
         top_categories = [(features[idx.item()], round(all_probs[0, idx].item()*100, 2)) for idx in top_indices]
-        for i, (category, probability) in enumerate(top_categories, 1):
-            print(f"{category} {probability:.2f}")
+        # for i, (category, probability) in enumerate(top_categories, 1):
+        #     print(f"{category} {probability:.2f}")
         return top_categories
 
 if __name__ == '__main__':
