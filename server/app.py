@@ -45,18 +45,38 @@ model = CLIPModel.from_pretrained(model_name)
 def process_image(image_bytes):
     # Load and preprocess image
     image = Image.open(BytesIO(image_bytes))
-    # Process all features in one batch
-    inputs = processor(text=features, images=[image], return_tensors="pt", padding=True)
-    with torch.no_grad():
-        outputs = model(**inputs)
-    logits_per_image = outputs.logits_per_image
-    probs = logits_per_image.softmax(dim=1)
+    
+    # Batch processing 
+    random.shuffle(features)
+    batch_size = len(features)//2
+    probs_list = []
+    for i in range(0, len(features), batch_size):
+        batch_features = features[i:i + batch_size]
+        # Process a batch of features
+        inputs = processor(text=batch_features, images=[image], return_tensors="pt", padding=True)
+        with torch.no_grad():
+            outputs = model(**inputs)
+        logits_per_image = outputs.logits_per_image
+        probs = logits_per_image.softmax(dim=1)
+        probs_list.append(probs)
+
+    # Pad probabilities to ensure consistent batch size
+    max_length = max(len(probs) for probs in probs_list)
+    for i in range(len(probs_list)):
+        current_length = len(probs_list[i])
+        if current_length < max_length:
+            padding_size = max_length - current_length
+            padding_probs = torch.zeros(padding_size, probs_list[i].shape[1])
+            probs_list[i] = torch.cat([probs_list[i], padding_probs], dim=0)
+
+    # Concatenate probabilities
+    all_probs = torch.cat(probs_list, dim=0)
 
     # Get the indices of the top 5 categories with highest probabilities
-    top_indices = torch.argsort(probs, descending=True)[0][:5]
+    top_indices = torch.argsort(all_probs, descending=True)[0][:5]
 
     # Retrieve and print the top 5 categories and their probabilities
-    top_categories = [(features[idx.item()], round(probs[0, idx].item()*100, 2)) for idx in top_indices]
+    top_categories = [(features[idx.item()], round(all_probs[0, idx].item()*100, 2)) for idx in top_indices]
     return top_categories
 
 if __name__ == '__main__':
