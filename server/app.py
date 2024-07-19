@@ -45,7 +45,7 @@ model = CLIPModel.from_pretrained(model_name)
 def process_image(image_bytes):
     # Load and preprocess image
     image = Image.open(BytesIO(image_bytes))
-    image = image.rotate(180)
+    # image.save('image.jpg')
     # Batch processing (adjust batch size as needed)
     random.shuffle(features)
     batch_size = len(features)//2
