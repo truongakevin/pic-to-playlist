@@ -8,7 +8,7 @@ const Features = ({ features }) => {
       {features.map((item, index) => (
         <View key={index} style={[styles.text, styles.feature]}>
           <Text style={[styles.text, styles.itemFeat]}>{item.feature}</Text>
-          <Text style={[styles.text, styles.itemProb]}>{item.probability}</Text>
+          <Text style={[styles.text, styles.itemProb]}>{item.probability}%</Text>
         </View>
       ))}
     </View>
