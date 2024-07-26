@@ -48,7 +48,7 @@ app.post('/analyze-photo', upload.single('image'), async (req, res) => {
         // console.log('Image analysis features:', features);
 
         // Generate playlist for the combined and indvidual features string
-        const combinedSearchString = features.map(feature => feature.feature).join(' ');
+        const combinedSearchString = features.map(feature => feature.feature).join(', ');
         const combinedPlaylist = await generatePlaylist(combinedSearchString);
         let individualPlaylists = [];
         for (const feature of features) {

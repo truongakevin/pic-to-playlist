@@ -12,11 +12,10 @@ load_dotenv()
 FLASK_PORT = int(os.getenv('FLASK_PORT', 5555))  # Default port is 5555 if not specified in .env
 
 # import 6300 features
-from genrelist import genres as features
-# from aestheticlist import aesthetics as features
-# from genrelist import genres
-# from aestheticlist import aesthetics
-# features = list(set(genres + aesthetics))
+# from genrelist import genres as features
+from genrelist import genres
+from aestheticlist import aesthetics
+features = list(set(genres + aesthetics))
 # features = ["pop","rap","rock","urbano latino","hip hop","trap latino","dance pop","reggaeton","pop rap","modern rock"]
 
 app = Flask(__name__)
@@ -60,26 +59,26 @@ def process_image(image_bytes):
         probs = logits_per_image.softmax(dim=1)
         probs_list.append(probs)
         
-        # Pad probabilities to ensure consistent batch size
-        max_length = max(len(probs) for probs in probs_list)
-        for i in range(len(probs_list)):
-            current_length = len(probs_list[i])
-            if current_length < max_length:
-                padding_size = max_length - current_length
-                padding_probs = torch.zeros(padding_size, probs_list[i].shape[1])
-                probs_list[i] = torch.cat([probs_list[i], padding_probs], dim=0)
+    # Pad probabilities to ensure consistent batch size
+    max_length = max(len(probs) for probs in probs_list)
+    for i in range(len(probs_list)):
+        current_length = len(probs_list[i])
+        if current_length < max_length:
+            padding_size = max_length - current_length
+            padding_probs = torch.zeros(padding_size, probs_list[i].shape[1])
+            probs_list[i] = torch.cat([probs_list[i], padding_probs], dim=0)
 
-        # Concatenate probabilities
-        all_probs = torch.cat(probs_list, dim=0)
+    # Concatenate probabilities
+    all_probs = torch.cat(probs_list, dim=0)
 
-        # Get the indices of the top 5 categories with highest probabilities
-        top_indices = torch.argsort(all_probs, descending=True)[0][:5]
+    # Get the indices of the top 5 categories with highest probabilities
+    top_indices = torch.argsort(all_probs, descending=True)[0][:5]
 
-        # Retrieve and print the top 5 categories and their probabilities
-        top_categories = [(features[idx.item()], round(all_probs[0, idx].item()*100, 2)) for idx in top_indices]
-        # for i, (category, probability) in enumerate(top_categories, 1):
-        #     print(f"{category} {probability:.2f}")
-        return top_categories
+    # Retrieve and print the top 5 categories and their probabilities
+    top_categories = [(features[idx.item()], round(all_probs[0, idx].item()*100, 2)) for idx in top_indices]
+    # for i, (category, probability) in enumerate(top_categories, 1):
+    #     print(f"{category} {probability:.2f}")
+    return top_categories
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=FLASK_PORT, debug=True)

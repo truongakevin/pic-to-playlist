@@ -70,6 +70,7 @@ const Playlist = ({ playlist }) => {
           <TouchableOpacity style={[styles.text, styles.songDetails]} onPress={() => handleSongNamePress(item.link)}>
             <Text style={[styles.text, styles.songName]}>{item.name}</Text>
             <Text style={[styles.text, styles.artistName]}>{item.artist}</Text>
+            <Text style={[styles.text, styles.caption]}>{item.caption}</Text>
           </TouchableOpacity>
         </View>
       ))}
@@ -144,6 +145,14 @@ const styles = StyleSheet.create({
   artistName: {
     color: '#b3b3b3',
     fontSize: 20,
+  },
+  caption: {
+    backgroundColor: '#282828',
+    color: '#B3B3B3',
+    paddingVertical: 2,
+    paddingHorizontal: 4,
+    borderRadius: 50,
+    fontSize: 12,
   },
 });
 
