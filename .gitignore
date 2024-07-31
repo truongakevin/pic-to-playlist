@@ -43,7 +43,6 @@ server/node/uploads/
 
 testapp.py
 
-.env
 .aider*
 
 nohup.out
