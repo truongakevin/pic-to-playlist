@@ -36,10 +36,10 @@ client/.vscode
 client/android
 client/ios
 
-server/__pycache__
-server/myenv
-server/node_modules
-server/uploads
+server/flask/__pycache__/
+server/flask/myenv/
+server/node/node_modules/
+server/node/uploads/
 
 testapp.py
 
