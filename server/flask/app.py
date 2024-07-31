@@ -85,4 +85,5 @@ def process_image(image_bytes):
     return top_categories
 
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=FLASK_PORT, debug=True)
+    app.run(host='0.0.0.0', port=FLASK_PORT)
+    # app.run(host='0.0.0.0', port=FLASK_PORT, debug=True)
