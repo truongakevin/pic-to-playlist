@@ -1,0 +1,1 @@
+transformers flask torch python-dotenv dotenv
