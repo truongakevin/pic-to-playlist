@@ -37,6 +37,7 @@ client/ios
 
 server/flask/__pycache__/
 server/flask/myenv/
+server/flask/venv/
 server/node/node_modules/
 server/node/uploads/
 
