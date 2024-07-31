@@ -25,8 +25,12 @@ async function getSpotifyAccessToken() {
 
 async function analyzeImage(imageBuffer) {
   try {
+    const startTime = Date.now();
     const base64Image = imageBuffer.toString('base64');
     const response = await axios.post(`http://${process.env.FALSK_ADDRESS}:${process.env.FLASK_PORT}/analyze-image`, { image: base64Image });
+    const endTime = Date.now();  // Record the end time
+    const elapsedTime = endTime - startTime;  // Calculate elapsed time
+    console.log(`Image analysis took ${elapsedTime} ms`);
     return response.data;
   } catch (error) {
     console.error('Error analyzing image:', error);
