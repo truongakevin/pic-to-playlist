@@ -45,3 +45,5 @@ testapp.py
 
 .env
 .aider*
+
+nohup.out

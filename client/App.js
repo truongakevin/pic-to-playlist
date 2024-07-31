@@ -98,6 +98,7 @@ export default function App() {
       }
       setLoading(false);
     } catch (error) {
+      alert("Error uploading image")
       console.log('Error uploading image: ' + error.message);
       console.error('Error uploading image:', error);
       setLoading(false);
