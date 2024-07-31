@@ -3,7 +3,6 @@ client/node_modules/
 
 # Expo
 client/.expo/
-client/dist/
 client/web-build/
 
 # Native
