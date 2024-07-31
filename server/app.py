@@ -20,6 +20,15 @@ features = list(set(genres + aesthetics))
 
 app = Flask(__name__)
 
+# Load pre-trained model and processor
+model_name = "openai/clip-vit-large-patch14"
+processor = CLIPProcessor.from_pretrained(model_name)
+model = CLIPModel.from_pretrained(model_name)
+
+# Check if CUDA is available and move the model to GPU
+device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+model.to(device)
+
 # Endpoint to handle image analysis
 @app.route('/analyze-image', methods=['POST'])
 def analyze_image():
@@ -32,13 +41,6 @@ def analyze_image():
     probabilities = process_image(image_data)
     json_data = [{'feature': feature, 'probability': probability} for feature, probability in probabilities]
     return jsonify(json_data)
-
-
-
-# Load pre-trained model and processor
-model_name = "openai/clip-vit-large-patch14"
-processor = CLIPProcessor.from_pretrained(model_name)
-model = CLIPModel.from_pretrained(model_name)
 
 # Function to process image with CLIP model
 def process_image(image_bytes):
@@ -53,12 +55,14 @@ def process_image(image_bytes):
         batch_features = features[i:i + batch_size]
         # Process a batch of features
         inputs = processor(text=batch_features, images=[image], return_tensors="pt", padding=True)
+        # Move tensors to GPU
+        inputs = {k: v.to(device) for k, v in inputs.items()}
         with torch.no_grad():
             outputs = model(**inputs)
         logits_per_image = outputs.logits_per_image
         probs = logits_per_image.softmax(dim=1)
-        probs_list.append(probs)
-        
+        probs_list.append(probs.cpu())  # Move probs back to CPU
+    
     # Pad probabilities to ensure consistent batch size
     max_length = max(len(probs) for probs in probs_list)
     for i in range(len(probs_list)):
