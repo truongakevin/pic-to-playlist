@@ -80,5 +80,5 @@ app.post('/analyze-photo', upload.single('image'), async (req, res) => {
 
 // start server
 app.listen(process.env.NODE_PORT, () => {
-    console.log(`Server listening at ${process.env.NODE_ADDRESS || 'http://localhost'}:${process.env.NODE_PORT || 3000}`);
+    console.log(`Server listening at ${process.env.NODE_ADDRESS || 'http://0.0.0.0'}:${process.env.NODE_PORT || 3000}`);
 });
