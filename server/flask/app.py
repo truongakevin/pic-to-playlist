@@ -32,7 +32,7 @@ model = CLIPModel.from_pretrained(model_name)
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 model.to(device)
 if app.config['DEBUG']:
-    print("CUDA Availablity: ",torch.cuda.is_available())
+    print("CUDA Availability: ", torch.cuda.is_available(), flush=True)
 
 # Endpoint to handle image analysis
 @app.route('/analyze-image', methods=['POST'])
@@ -42,11 +42,10 @@ def analyze_image():
     base64_image = data['image']
     image_data = base64.b64decode(base64_image)
     if app.config['DEBUG']:
-        print("Image Recieved")
-    # Process image and return proable features
+        print("Image Received", flush=True)
     probabilities = process_image(image_data)
     if app.config['DEBUG']:
-        print("Image Processed")
+        print("Image Processed", flush=True)
     json_data = [{'feature': feature, 'probability': probability} for feature, probability in probabilities]
     return jsonify(json_data)
 
