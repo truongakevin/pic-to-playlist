@@ -1,3 +1,5 @@
+# transformers flask python-dotenv Pillow torch
+# gunicorn
 from transformers import CLIPProcessor, CLIPModel
 from flask import Flask, request, jsonify
 from dotenv import load_dotenv
@@ -19,6 +21,7 @@ features = list(set(genres + aesthetics))
 # features = ["pop","rap","rock","urbano latino","hip hop","trap latino","dance pop","reggaeton","pop rap","modern rock"]
 
 app = Flask(__name__)
+app.config['DEBUG'] = True
 
 # Load pre-trained model and processor
 model_name = "openai/clip-vit-large-patch14"
@@ -28,6 +31,8 @@ model = CLIPModel.from_pretrained(model_name)
 # Check if CUDA is available and move the model to GPU
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 model.to(device)
+if app.config['DEBUG']:
+    print("CUDA Availablity: ",torch.cuda.is_available())
 
 # Endpoint to handle image analysis
 @app.route('/analyze-image', methods=['POST'])
@@ -36,9 +41,12 @@ def analyze_image():
     data = request.json
     base64_image = data['image']
     image_data = base64.b64decode(base64_image)
-    
+    if app.config['DEBUG']:
+        print("Image Recieved")
     # Process image and return proable features
     probabilities = process_image(image_data)
+    if app.config['DEBUG']:
+        print("Image Processed")
     json_data = [{'feature': feature, 'probability': probability} for feature, probability in probabilities]
     return jsonify(json_data)
 
@@ -86,4 +94,3 @@ def process_image(image_bytes):
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=FLASK_PORT)
-    # app.run(host='0.0.0.0', port=FLASK_PORT, debug=True)
