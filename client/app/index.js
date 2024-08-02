@@ -9,8 +9,8 @@ import Features from './Features';
 
 async function loadFonts() {
   await Font.loadAsync({
-    'CircularStd-Bold': require('./assets/fonts/CircularStd-Bold.ttf'),
-    'CircularStd': require('./assets/fonts/CircularStd.ttf'),
+    'CircularStd-Bold': require('../assets/fonts/CircularStd-Bold.ttf'),
+    'CircularStd': require('../assets/fonts/CircularStd.ttf'),
   });
 }
 
@@ -82,8 +82,8 @@ export default function App() {
         let type = match ? `image/${match[1]}` : `image`;
         formData.append('image', { uri: image, name: filename, type: type });
       }
-
       const NODE_ADDRESS = `http://${process.env.NODE_ADDRESS}:${process.env.NODE_PORT}` || 'http://localhost:3000';
+      console.log(NODE_ADDRESS);
       const response = await fetch(`${NODE_ADDRESS}/analyze-photo`, {
         method: 'POST',
         body: formData,

@@ -48,3 +48,5 @@ testapp.py
 nohup.out
 
 deploy*
+
+client-react/
