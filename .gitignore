@@ -46,3 +46,5 @@ testapp.py
 .aider*
 
 nohup.out
+
+deploy*
