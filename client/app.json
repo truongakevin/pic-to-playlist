@@ -29,7 +29,9 @@
       "package": "android.kevintruong.pictoplaylist"
     },
     "web": {
-      "favicon": "./assets/favicon.png"
+      "output": {
+        "publicPath": "/pic-to-playlist/"
+      }
     }
   }
 }
