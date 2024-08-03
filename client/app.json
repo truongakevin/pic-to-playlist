@@ -32,6 +32,16 @@
       "output": {
         "publicPath": "/pic-to-playlist/"
       }
-    }
+    },
+    "plugins": [
+      [
+        "expo-camera",
+        {
+          "cameraPermission": "Allow Pic-To-Playlist to access your camera",
+          "microphonePermission": "Allow Pic-To-Playlist to access your microphone",
+          "recordAudioAndroid": true
+        }
+      ]
+    ]
   }
 }
