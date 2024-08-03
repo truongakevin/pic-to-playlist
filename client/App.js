@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { StyleSheet, Text, View, Image, Platform, ActivityIndicator, TouchableOpacity, ScrollView } from 'react-native';
+import { StatusBar, SafeAreaView, StyleSheet, Text, View, Image, Platform, ActivityIndicator, TouchableOpacity, ScrollView } from 'react-native';
 import * as ImagePicker from 'expo-image-picker';
 import * as Font from 'expo-font';
 import AHImage from 'react-native-image-auto-height';
@@ -106,9 +106,12 @@ export default function App() {
     }
   };
 
-  return (
+  return (<>
     <ScrollView style={styles.container} contentContainerStyle={{ flexGrow: 1, justifyContent: 'space-between' }}>
-      <LinearGradient start={{x: 0, y: 0}} end={{x: 0, y: 1}} colors={['#282828', '#101010']}>
+      {/* <View style={{backgroundColor: '#fff', top:200, height:10}}></View> */}
+      {/* <SafeAreaView style={{backgroundColor: '#000',}}></SafeAreaView> */}
+      <StatusBar hidden />
+      <LinearGradient colors={['#282828', '#101010']}>
       <Text style={[styles.title, styles.text, { color: '#1db954' }]}>Pic To Playlist</Text>
       {image && <AHImage source={{ uri: image }} style={styles.image} />}
       {loading && <ActivityIndicator size="large" color="#fff" style={styles.activityIndicator} />}
@@ -133,6 +136,7 @@ export default function App() {
         )}
       </View>
     </ScrollView>
+        </>
   );
 }
 
@@ -143,8 +147,8 @@ const styles = StyleSheet.create({
     fontFamily: 'CircularStd-Bold',
   },
   container: {
+    top: 50,
     backgroundColor: '#101010',
-    height: '100%'
   },
   title: {
     fontSize: 50,
