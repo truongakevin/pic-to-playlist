@@ -150,7 +150,7 @@ const styles = StyleSheet.create({
     fontFamily: 'CircularStd-Bold',
   },
   container: {
-    backgroundColor: '#121212',
+    backgroundColor: '#101010',
   },
   title: {
     fontSize: 50,
