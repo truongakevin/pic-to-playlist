@@ -41,6 +41,8 @@ server/flask/myenv/
 server/flask/venv/
 server/node/node_modules/
 server/node/uploads/
+server/node/.env
+server/flask/.env
 
 testapp.py
 
