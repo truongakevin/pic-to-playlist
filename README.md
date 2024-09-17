@@ -56,23 +56,6 @@ npm install
 pip install -r requirements.txt
 ```
 
-3. Create a .env file in the backend directory with the following variables:
-
-client/.env
-```
-NODE_ADDRESS = "http://kevinsfunzone.com"
-NODE_PORT = 33333
-```
-server/.env
-```
-NODE_ADDRESS = "http://kevinsfunzone.com"
-NODE_PORT=33333
-FALSK_ADDRESS="http://kevinsfunzone.com"
-FLASK_PORT=52525
-SPOTIFY_CLIENT_ID=""
-SPOTIFY_CLIENT_SECRET=""
-```
-
 
 ## Usage
 Ensure your device or simulator is set up to run the Expo app.
@@ -86,14 +69,6 @@ python app.py // flask server
 3. Open the Expo app on your device or emulator.
 4. Use the app to upload or take a photo.
 5. The app will analyze the photo, generate a Spotify playlist, and display it along with the extracted features.
-
-
-
-
-
-
-
-
 
 
 ## Contributing
