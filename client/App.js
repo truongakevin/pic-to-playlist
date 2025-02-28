@@ -6,7 +6,6 @@ import AHImage from 'react-native-image-auto-height';
 import Playlist from './Playlist';
 import Features from './Features';
 
-
 async function loadFonts() {
   await Font.loadAsync({
     'CircularStd-Bold': require('./assets/fonts/CircularStd-Bold.ttf'),
@@ -69,6 +68,8 @@ export default function App() {
   };
 
   const uploadImage = async () => {
+    setFeatures([]); 
+    setPlaylist([]); 
     setLoading(true);
     try {
       let formData = new FormData();
@@ -108,37 +109,26 @@ export default function App() {
     <ScrollView style={styles.container} contentContainerStyle={{ flexGrow: 1, justifyContent: 'space-between' }}>
       <Text style={[styles.title, styles.text, { color: '#1db954' }]}>Pic To Playlist</Text>
       {image && <AHImage source={{ uri: image }} style={styles.image} />}
-      {loading ? (
-        <ActivityIndicator size="large" color="#fff" style={styles.activityIndicator} />
-      ) : (
+      {loading && <ActivityIndicator size="large" color="#fff" style={styles.activityIndicator} />}
+      {playlist.length > 0 &&
         <>
-          {playlist.length > 0 &&
-            <>
-              <Features features={features} />
-              <Playlist playlist={playlist} />
-            </>
-          }
-          <View style={styles.buttonContainer}>
-            {!image ? (
-              <View style={styles.uploadContainer}>
-                <CustomButton title="TAKE" onPress={takePhoto} />
-                <CustomButton title="UPLOAD" onPress={pickImage} />
-              </View>
-            ) : (
-              <>
-              <View style={styles.convertContainer}>
-                { playlist.length > 0 ? (
-                  <CustomButton title="RETRY" onPress={uploadImage} />
-                ) : (
-                  <CustomButton title="CONVERT" onPress={uploadImage} />
-                )}
-              </View>
-              <CustomButton title="NEW PICTURE" onPress={() => { setImage(null); setFeatures([]); setPlaylist([]); }}/>
-              </>
-            )}
-          </View>
+          <Features features={features} />
+          <Playlist playlist={playlist} />
         </>
-      )}
+      }
+      <View style={styles.buttonContainer}>
+        {!image ? (
+          <>
+            <CustomButton title="TAKE" onPress={takePhoto} />
+            <CustomButton title="UPLOAD" onPress={pickImage} />
+          </>
+        ) : (
+          <>
+            {!loading && <CustomButton title={playlist.length > 0 ? "RETRY" : "CONVERT" } onPress={uploadImage} />}
+            {!loading && <CustomButton title="NEW PICTURE" onPress={() => { setImage(null); setFeatures([]); setPlaylist([]); }}/>}
+          </>
+        )}
+      </View>
     </ScrollView>
   );
 }
@@ -155,7 +145,7 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 50,
     marginVertical: 25,
-    marginTop: 100,
+    marginTop: 50,
     letterSpacing: -1.25,
     textAlign: 'center',
   },
