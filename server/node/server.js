@@ -33,7 +33,7 @@ app.get('/hello', (req, res) => {
     res.send('Hello World!');
 });
 
-app.post('/analyze-photo', upload.single('image'), async (req, res) => {
+app.post('/analyze-photo-ptp', upload.single('image'), async (req, res) => {
     try {
         if (!req.file) {
             console.error('No file uploaded');
