@@ -3,6 +3,21 @@ require('dotenv').config();
 const axios = require('axios');
 const fs = require('fs');
 
+async function analyzeImage(imageBuffer) {
+  try {
+    const startTime = Date.now();
+    const base64Image = imageBuffer.toString('base64');
+    const response = await axios.post(`http://${process.env.FLASK_ADDRESS}:${process.env.FLASK_PORT}/image-analysis/ptp`, { image: base64Image });
+    const endTime = Date.now();  // Record the end time
+    const elapsedTime = endTime - startTime;  // Calculate elapsed time
+    console.log(`Image analysis took ${elapsedTime} ms`);
+    return response.data;
+  } catch (error) {
+    console.error('Error analyzing image:', error);
+    throw error;
+  }
+}
+
 async function getSpotifyAccessToken() {
   try {
     const response = await axios.post('https://accounts.spotify.com/api/token', new URLSearchParams({
@@ -23,19 +38,23 @@ async function getSpotifyAccessToken() {
   }
 }
 
-async function analyzeImage(imageBuffer) {
+async function fetchPreviewFromSpotifyEmbed(trackId) {
   try {
-    const startTime = Date.now();
-    const base64Image = imageBuffer.toString('base64');
-    const response = await axios.post(`http://${process.env.FALSK_ADDRESS}:${process.env.FLASK_PORT}/analyze-image`, { image: base64Image });
-    const endTime = Date.now();  // Record the end time
-    const elapsedTime = endTime - startTime;  // Calculate elapsed time
-    console.log(`Image analysis took ${elapsedTime} ms`);
-    return response.data;
+    const embedUrl = `https://open.spotify.com/embed/track/${trackId}`;
+    const response = await axios.get(embedUrl);
+    
+    // Extract JSON data from the HTML using regex
+    const regex = /<script id="__NEXT_DATA__" type="application\/json">(.+?)<\/script>/s;
+    const match = response.data.match(regex);
+
+    if (match) {
+      const jsonData = JSON.parse(match[1]);
+      return jsonData?.props?.pageProps?.state?.data?.entity?.audioPreview || null;
+    }
   } catch (error) {
-    console.error('Error analyzing image:', error);
-    throw error;
+    console.error(`Error fetching preview from Spotify embed for track ${trackId}:`, error.message);
   }
+  return null;
 }
 
 const generatePlaylist = async (search_string) => {
@@ -51,15 +70,34 @@ const generatePlaylist = async (search_string) => {
       'Content-Type': 'application/x-www-form-urlencoded',
     },
   });
-  const tracks = response.data.tracks.items;
-  return tracks.map(track => ({
-    name: track.name,
-    coverImage: track.album.images[0].url,
-    artist: track.artists[0].name,
-    link: track.external_urls.spotify,
-    audio: track.preview_url,
-    caption: search_string,
-  }));
+  
+  const tracks = response.data.tracks.items || [];
+  if (tracks.length === 0) {
+    console.warn(`No tracks found for "${search_string}"`);
+    return [];
+  }
+
+  const playlist = await Promise.all(
+    tracks.map(async (track) => {
+      let previewUrl = track.preview_url;
+
+      // If Spotify API does not provide a preview, fetch from embed page
+      if (!previewUrl) {
+        previewUrl = await fetchPreviewFromSpotifyEmbed(track.id);
+      }
+
+      return {
+        name: track.name,
+        coverImage: track.album?.images?.[0]?.url || null,
+        artist: track.artists?.[0]?.name || "Unknown Artist",
+        link: track.external_urls?.spotify || "#",
+        audio: `${previewUrl.url}.mp3` || null, 
+        caption: search_string,
+      };
+    })
+  );
+
+  return playlist;
 };
 
 module.exports = {
