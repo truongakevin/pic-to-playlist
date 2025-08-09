@@ -57,6 +57,7 @@ const Playlist = ({ playlist }) => {
 
         const newSoundObject = new Audio.Sound();
         await newSoundObject.loadAsync({ uri: url });
+        await newSoundObject.setVolumeAsync(.15)
         setSoundObject(newSoundObject);
         setCurrentSong(url);
         await newSoundObject.playAsync();
