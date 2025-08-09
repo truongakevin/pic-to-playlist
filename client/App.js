@@ -98,7 +98,7 @@ export default function App() {
       }
       setLoading(false);
     } catch (error) {
-      alert("Error uploading image")
+      alert("Image upload failed. Please try again shortly.");
       console.log('Error uploading image: ' + error.message);
       console.error('Error uploading image:', error);
       setLoading(false);
@@ -107,7 +107,7 @@ export default function App() {
 
   return (
     <ScrollView style={styles.container} contentContainerStyle={{ flexGrow: 1, justifyContent: 'space-between' }}>
-      <Text style={[styles.title, styles.text, { color: '#1db954' }]}>Pic To Playlist</Text>
+      <Text style={[styles.title, styles.text, { color: '#1db954' }]}><a style={{ ...styles.title, ...styles.text, textDecoration: 'none', color: '#1db954' }} href="/" > Pic To Playlist </a></Text>
       {image && <AHImage source={{ uri: image }} style={styles.image} />}
       {loading && <ActivityIndicator size="large" color="#fff" style={styles.activityIndicator} />}
       {playlist.length > 0 &&
