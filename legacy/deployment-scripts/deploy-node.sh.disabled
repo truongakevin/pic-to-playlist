@@ -1,0 +1,45 @@
+#!/bin/bash
+
+# send over app.py
+file="server.js"
+# Copy the file from Mac to the Linux server
+# ~/programming/projects/pic-to-playlist/server/flask/
+scp $file linux:~
+ssh linux "sudo mv ~/$file /var/www/kevinsfunzone.com/pic-to-playlist/server/node/"
+
+# restart service
+# sudo chown -R www-data:www-data /var/www/kevinsfunzone.com/pic-to-playlist/server/flask
+# sudo chmod -R 755 /var/www/kevinsfunzone.com/pic-to-playlist/server/flask
+# sudo chmod +x /var/www/kevinsfunzone.com/pic-to-playlist/server/flask/venv/bin/python
+
+# sudo ufw allow 52525
+# sudo ufw allow 33333
+
+
+# sudo nano /etc/systemd/system/node-pic-to-playlist.service
+
+# sudo systemctl restart node-pic-to-playlist
+
+# sudo systemctl stop node-pic-to-playlist
+
+# sudo systemctl disable node-pic-to-playlist
+
+# sudo systemctl start node-pic-to-playlist
+
+# sudo systemctl enable node-pic-to-playlist
+
+# sudo systemctl status node-pic-to-playlist
+
+# [Unit]
+# Description=Node Pic-to-Playlist Backend
+# After=network.target
+
+# [Service]
+# User=kevintruong
+# Group=www-data
+# WorkingDirectory=/var/www/kevinsfunzone.com/pic-to-playlist/server/node
+# ExecStart=/usr/bin/node /var/www/kevinsfunzone.com/pic-to-playlist/server/node/server.js
+# Restart=always
+
+# [Install]
+# WantedBy=multi-user.target

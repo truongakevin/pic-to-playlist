@@ -1,0 +1,107 @@
+name: Test and deploy Pic-to-Playlist API
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - "backend/api/**"
+      - "deployment/systemd/pic-to-playlist-api.service"
+      - ".github/workflows/deploy-api.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: pic-to-playlist-production
+  cancel-in-progress: false
+
+jobs:
+  test:
+    name: Test API
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    defaults:
+      run:
+        working-directory: backend/api
+
+    steps:
+      - name: Check out source
+        uses: actions/checkout@v7.0.1
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v7.0.0
+        with:
+          node-version: "22"
+          cache: npm
+          cache-dependency-path: backend/api/package-lock.json
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Check syntax
+        run: npm run check
+
+      - name: Run tests
+        run: npm test
+
+  deploy:
+    name: Deploy API
+    needs: test
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    environment: production
+    env:
+      SERVER_HOST: ${{ vars.SERVER_HOST }}
+      SERVER_PORT: ${{ vars.SERVER_PORT }}
+      SERVER_USER: ${{ vars.SERVER_USER }}
+
+    steps:
+      - name: Configure SSH
+        env:
+          SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
+          SSH_KNOWN_HOSTS: ${{ secrets.SSH_KNOWN_HOSTS }}
+        run: |
+          install -d -m 700 ~/.ssh
+          printf '%s\n' "$SSH_PRIVATE_KEY" > ~/.ssh/id_ed25519
+          printf '%s\n' "$SSH_KNOWN_HOSTS" > ~/.ssh/known_hosts
+          chmod 600 ~/.ssh/id_ed25519 ~/.ssh/known_hosts
+
+      - name: Update source and restart API
+        run: |
+          ssh -i ~/.ssh/id_ed25519 -p "${SERVER_PORT}" \
+            "${SERVER_USER}@${SERVER_HOST}" 'bash -se' <<'REMOTE'
+          set -eu
+          project=/srv/kevin/projects/pic-to-playlist
+          if [ ! -d "$project/.git" ]; then
+            git clone --branch main --single-branch \
+              https://github.com/truongakevin/pic-to-playlist.git "$project"
+          else
+            git -C "$project" fetch origin main
+            git -C "$project" checkout main
+            git -C "$project" merge --ff-only origin/main
+          fi
+          cd "$project/backend/api"
+          /home/kevintruong/.nvm/versions/node/v22.5.1/bin/npm ci --omit=dev
+          sudo ln -sfn \
+            "$project/deployment/systemd/pic-to-playlist-api.service" \
+            /etc/systemd/system/pic-to-playlist-api.service
+          sudo systemctl daemon-reload
+          sudo systemctl disable --now node-pic-to-playlist.service 2>/dev/null || true
+          sudo systemctl restart pic-to-playlist-api.service
+          for attempt in 1 2 3 4 5; do
+            if curl --fail --silent http://127.0.0.1:33333/health >/dev/null; then
+              exit 0
+            fi
+            sleep 2
+          done
+          sudo systemctl status pic-to-playlist-api.service --no-pager
+          exit 1
+          REMOTE
+
+      - name: Verify public API route
+        run: |
+          status=$(curl --silent --output /dev/null --write-out '%{http_code}' \
+            https://kevinatruong.com/api/image-analysis/ptp/node)
+          test "$status" = "404"

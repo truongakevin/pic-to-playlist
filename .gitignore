@@ -1,10 +1,11 @@
 # dependencies
-client/node_modules/
+frontend/node_modules/
+backend/api/node_modules/
 
 # Expo
-client/.expo/
-client/web-build/
-client/dist/
+frontend/.expo/
+frontend/web-build/
+frontend/dist/
 
 # Native
 *.orig.*
@@ -32,23 +33,24 @@ yarn-error.*
 # typescript
 *.tsbuildinfo
 
-client/.vscode
-client/android
-client/ios
+frontend/.vscode
+frontend/android
+frontend/ios
 
-server/flask/__pycache__/
-server/flask/myenv/
-server/flask/venv/
-server/node/node_modules/
-server/node/uploads/
-server/node/.env
-server/flask/.env
+legacy/flask-backend/__pycache__/
+legacy/flask-backend/myenv/
+legacy/flask-backend/venv/
+backend/api/uploads/
+backend/api/.env
+legacy/flask-backend/.env
 
-testapp.py
+# Local environment files, while keeping documented examples.
+.env
+.env.*
+!.env.example
 
 .aider*
 
 nohup.out
 
-deploy*
 client-react

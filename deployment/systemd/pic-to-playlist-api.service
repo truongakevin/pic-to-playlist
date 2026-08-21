@@ -1,0 +1,20 @@
+[Unit]
+Description=Pic-to-Playlist API
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=kevintruong
+Group=www-data
+WorkingDirectory=/srv/kevin/projects/pic-to-playlist/backend/api
+EnvironmentFile=/srv/kevin/config/env/pic-to-playlist.env
+ExecStart=/home/kevintruong/.nvm/versions/node/v22.5.1/bin/node server.js
+Restart=on-failure
+RestartSec=5
+TimeoutStopSec=20
+NoNewPrivileges=true
+PrivateTmp=true
+
+[Install]
+WantedBy=multi-user.target

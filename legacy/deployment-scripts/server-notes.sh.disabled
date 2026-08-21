@@ -1,0 +1,3 @@
+# post request to test server
+# curl -X POST https://kevinsfunzone.com/pic-to-playlist/api/node/ -F "image=@image.jpeg;"
+# curl -X POST http://kevinsfunzone.com:33333/analyze-photo -F "image=@image.jpeg;"

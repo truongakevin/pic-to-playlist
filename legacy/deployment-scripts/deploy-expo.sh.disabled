@@ -1,0 +1,39 @@
+#!/bin/bash
+
+# build app
+rm -rf dist
+
+npx expo prebuild
+npx expo export -p web
+
+# Use sed to find and replace src="/ with src="/pic-to-playlist/
+sed -i '' 's|href:"/",children:" Pic|href:"/pic-to-playlist",children:" Pic|g' $(find dist/_expo/static/js/web -type f -name 'AppEntry*' | head -n 1)
+
+sed -i '' 's|src="/|src="/pic-to-playlist/|g' "dist/index.html"
+sed -i '' 's|/assets/assets/|/pic-to-playlist/assets/assets/|g' $(find dist/_expo/static/js/web -type f -name 'AppEntry*' | head -n 1)
+sed -i '' '/<\/body>/i\
+<!-- Google tag (gtag.js) -->\
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-KFXPYQECKZ"></script>\
+<script>\
+  window.dataLayer = window.dataLayer || [];\
+  function gtag(){dataLayer.push(arguments);}\
+  gtag('\''js'\'', new Date());\
+  gtag('\''config'\'', '\''G-KFXPYQECKZ'\'');\
+</script>\
+' ./dist/index.html
+
+sed -i '' '/<\/head>/i\
+<link rel="icon" href="assets/assets/images/favicon.png" type="image/x-icon">
+' ./dist/index.html
+
+# send
+file="dist"
+# Copy the file from Mac to the Linux server
+scp -r $file linux:~
+scp -r assets/images/ linux:~/dist/assets/assets/
+ssh linux "sudo rm -rf /var/www/kevinatruong.com/pic-to-playlist/*"
+ssh linux "sudo mv -f ~/$file/* /var/www/kevinatruong.com/pic-to-playlist/"
+
+# restart service
+# ssh linux "sudo chown -R www-data:www-data /var/www/kevinatruong.com/"
+# ssh linux "sudo chmod -R 755 /var/www/kevinatruong.com/"

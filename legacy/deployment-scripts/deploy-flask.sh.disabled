@@ -1,0 +1,15 @@
+#!/bin/bash
+
+# send over app.py
+file="app.py"
+# Copy the file from Mac to the Linux server
+# ~/programming/projects/pic-to-playlist/server/flask/
+scp $file linux:~
+ssh linux "sudo mv ~/$file /var/www/kevinsfunzone.com/pic-to-playlist/server/flask/"
+
+# restart service
+# sudo chown -R www-data:www-data /var/www/kevinsfunzone.com/pic-to-playlist/server/flask
+# sudo chmod -R 755 /var/www/kevinsfunzone.com/pic-to-playlist/server/flask
+# sudo chmod +x /var/www/kevinsfunzone.com/pic-to-playlist/server/flask/venv/bin/python
+
+# curl -X POST "https://kevinsfunzone.com/pic-to-playlist/api/node/"      -F "image=@/Users/kevintruong/Desktop/image.jpeg"
