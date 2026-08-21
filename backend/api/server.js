@@ -1,126 +1,84 @@
 require('dotenv').config();
 
-const crypto = require('crypto');
-const cors = require('cors');
+const bodyParser = require('body-parser');
 const express = require('express');
 const morgan = require('morgan');
 const multer = require('multer');
-const defaultHelpers = require('./helpers');
+const cors = require('cors');
+const fs = require('fs');
+const { analyzeImage, generatePlaylist } = require('./helpers');
 
-const DEFAULT_MAX_IMAGE_BYTES = 15 * 1024 * 1024;
+const app = express();
 
-function allowedOrigins() {
-  return (process.env.CORS_ORIGINS || 'http://localhost:8081,http://localhost:19006')
-    .split(',')
-    .map(origin => origin.trim())
-    .filter(Boolean);
-}
+// use statements
+app.use(bodyParser.json({ limit: '50mb' }));
+app.use(bodyParser.urlencoded({ limit: '50mb', extended: true }));
+app.use(morgan('dev'));
+app.use(cors());
 
-function createApp({
-  analyzeImage = defaultHelpers.analyzeImage,
-  generatePlaylist = defaultHelpers.generatePlaylist,
-  logger = console,
-} = {}) {
-  const app = express();
-  const origins = allowedOrigins();
-  const upload = multer({
-    storage: multer.memoryStorage(),
-    limits: {
-      files: 1,
-      fileSize: Number(process.env.MAX_IMAGE_BYTES || DEFAULT_MAX_IMAGE_BYTES),
+// multer configs
+const storage_mem = multer.memoryStorage();
+const storage_hd = multer.diskStorage({
+    destination: function (req, file, cb) {
+        cb(null, "uploads");
     },
-    fileFilter: (request, file, callback) => {
-      callback(
-        file.mimetype.startsWith('image/')
-          ? null
-          : new multer.MulterError('LIMIT_UNEXPECTED_FILE', file.fieldname),
-        file.mimetype.startsWith('image/')
-      );
+    filename: function (req, file, cb) {
+        cb(null, `${Date.now()}_${file.originalname}`);
     },
-  });
+})
+const upload = multer({ storage: storage_mem });
 
-  app.disable('x-powered-by');
-  app.use(morgan('combined'));
-  app.use(cors({
-    origin(origin, callback) {
-      if (!origin || origins.includes(origin)) {
-        callback(null, true);
-        return;
-      }
-      callback(new Error('Origin is not allowed'));
-    },
-  }));
+// test route
+app.get('/hello', (req, res) => {
+    res.send('Hello World!');
+});
 
-  app.get('/health', (request, response) => {
-    response.json({ status: 'ok' });
-  });
-
-  app.post('/analyze-photo-ptp', upload.single('image'), async (request, response) => {
-    const requestId = request.get('x-request-id') || crypto.randomUUID();
-    response.set('x-request-id', requestId);
-
+app.post('/analyze-photo-ptp', upload.single('image'), async (req, res) => {
     try {
-      if (!request.file) {
-        return response.status(400).json({ error: 'No image uploaded', requestId });
-      }
+        if (!req.file) {
+            console.error('No file uploaded');
+            return res.status(400).json({ error: 'No file uploaded' });
+        }
+        console.log('File uploaded');
+        // console.log('File uploaded:', req.file);
 
-      const features = await analyzeImage(request.file.buffer);
-      if (!Array.isArray(features) || features.length === 0) {
-        throw new Error('Image analysis returned no features');
-      }
+        // Generate features based on image
+        const features = await analyzeImage(req.file.buffer);
+        console.log('Features obtained');
+        // console.log('Image analysis features:', features);
 
-      const searchTerms = [
-        features.map(feature => feature.feature).join(', '),
-        ...features.map(feature => feature.feature),
-      ];
-      const tracks = [];
+        // Generate playlist for the combined and indvidual features string
+        const combinedSearchString = features.map(feature => feature.feature).join(', ');
+        const combinedPlaylist = await generatePlaylist(combinedSearchString);
+        let individualPlaylists = [];
+        for (const feature of features) {
+            const individualPlaylist = await generatePlaylist(feature.feature);
+            individualPlaylists = [...individualPlaylists, ...individualPlaylist];
+        }
+        const allTracks = [...combinedPlaylist, ...individualPlaylists];
+        const trackMap = new Map();
+        allTracks.forEach(track => {
+            const key = `${track.name}-${track.artist}`;
+            trackMap.set(key, track);
+        });
+        const uniqueTracks = [...trackMap.values()];
+        // console.log('Generated playlist:', uniqueTracks);
+        console.log('Generated playlist');
 
-      for (const searchTerm of searchTerms) {
-        tracks.push(...await generatePlaylist(searchTerm));
-      }
 
-      const uniqueTracks = [
-        ...new Map(
-          tracks.map(track => [`${track.name}\u0000${track.artist}`, track])
-        ).values(),
-      ];
+        // // save file name base on features
+        // const filePath = `uploads/${Date.now()}_${req.file.originalname}`;
+        // fs.writeFileSync(filePath, req.file.buffer);
+        // console.log('File saved to disk at:', filePath);
 
-      return response.json({ features, playlist: uniqueTracks });
+        res.json({ 'features': features, 'playlist': uniqueTracks });
     } catch (error) {
-      logger.error(`Request ${requestId} failed:`, error);
-      return response.status(502).json({
-        error: 'Failed to generate playlist',
-        requestId,
-      });
+        console.error('Error processing request:', error);
+        res.status(500).json({ error: 'Failed to generate playlist' });
     }
-  });
+});
 
-  app.use((error, request, response, next) => {
-    if (error instanceof multer.MulterError) {
-      return response.status(400).json({ error: error.message });
-    }
-
-    logger.error('Unhandled API error:', error);
-    return response.status(500).json({ error: 'Internal server error' });
-  });
-
-  return app;
-}
-
-function startServer() {
-  const host = process.env.NODE_HOST || '127.0.0.1';
-  const port = Number(process.env.NODE_PORT || 33333);
-  const app = createApp();
-  return app.listen(port, host, () => {
-    console.log(`Pic-to-Playlist API listening at http://${host}:${port}`);
-  });
-}
-
-if (require.main === module) {
-  startServer();
-}
-
-module.exports = {
-  createApp,
-  startServer,
-};
+// start server
+app.listen(process.env.NODE_PORT, () => {
+    console.log(`Server listening at ${process.env.NODE_ADDRESS || 'http://0.0.0.0'}:${process.env.NODE_PORT || 3000}`);
+});

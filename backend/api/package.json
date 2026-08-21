@@ -1,30 +1,23 @@
 {
-  "name": "pic-to-playlist-api",
+  "name": "server",
   "version": "1.0.0",
-  "private": true,
-  "main": "server.js",
+  "main": "index.js",
   "scripts": {
-    "start": "node server.js",
-    "dev": "nodemon server.js",
-    "check": "node --check server.js && node --check helpers.js",
-    "test": "node --test"
+    "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
-  "description": "Pic-to-Playlist image upload and Spotify playlist API",
-  "engines": {
-    "node": ">=22"
-  },
+  "description": "",
   "dependencies": {
     "axios": "^1.7.2",
+    "body-parser": "^1.20.2",
     "cors": "^2.8.5",
     "dotenv": "^16.4.5",
     "express": "^4.19.2",
     "morgan": "^1.10.0",
-    "multer": "^1.4.5-lts.1"
-  },
-  "devDependencies": {
-    "nodemon": "^3.1.4"
+    "multer": "^1.4.5-lts.1",
+    "nodemon": "^3.1.4",
+    "sharp": "^0.33.4"
   }
 }

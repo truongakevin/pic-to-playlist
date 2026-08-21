@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { StyleSheet, Text, View, Image, Platform, ActivityIndicator, TouchableOpacity, ScrollView, Linking } from 'react-native';
+import { StyleSheet, Text, View, Image, Platform, ActivityIndicator, TouchableOpacity, ScrollView } from 'react-native';
 import * as ImagePicker from 'expo-image-picker';
 import * as Font from 'expo-font';
 import AHImage from 'react-native-image-auto-height';
@@ -108,12 +108,7 @@ export default function App() {
 
   return (
     <ScrollView style={styles.container} contentContainerStyle={{ flexGrow: 1, justifyContent: 'space-between' }}>
-      <Text
-        style={[styles.title, styles.text, { color: '#1db954' }]}
-        onPress={() => Linking.openURL('https://kevinatruong.com/pic-to-playlist/')}
-      >
-        Pic To Playlist
-      </Text>
+      <Text style={[styles.title, styles.text, { color: '#1db954' }]}><a style={{ ...styles.title, ...styles.text, textDecoration: 'none', color: '#1db954' }} href="/" > Pic To Playlist </a></Text>
       {image && <AHImage source={{ uri: image }} style={styles.image} />}
       {loading && <ActivityIndicator size="large" color="#fff" style={styles.activityIndicator} />}
       {playlist.length > 0 &&

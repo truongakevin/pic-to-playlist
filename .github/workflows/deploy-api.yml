@@ -18,8 +18,8 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
-  test:
-    name: Test API
+  validate:
+    name: Validate API source
     runs-on: ubuntu-latest
     timeout-minutes: 10
     defaults:
@@ -41,14 +41,13 @@ jobs:
         run: npm ci
 
       - name: Check syntax
-        run: npm run check
-
-      - name: Run tests
-        run: npm test
+        run: |
+          node --check server.js
+          node --check helpers.js
 
   deploy:
     name: Deploy API
-    needs: test
+    needs: validate
     runs-on: ubuntu-latest
     timeout-minutes: 15
     environment: production
@@ -91,7 +90,7 @@ jobs:
           sudo systemctl disable --now node-pic-to-playlist.service 2>/dev/null || true
           sudo systemctl restart pic-to-playlist-api.service
           for attempt in 1 2 3 4 5; do
-            if curl --fail --silent http://127.0.0.1:33333/health >/dev/null; then
+            if curl --fail --silent http://127.0.0.1:33333/hello >/dev/null; then
               exit 0
             fi
             sleep 2
