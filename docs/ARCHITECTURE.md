@@ -33,7 +33,8 @@ does not deploy the shared GPU service.
 the tools used to inspect them. `legacy/flask-backend` preserves the older
 standalone Pic-to-Playlist inference implementation. Files under
 `legacy/deployment-scripts` are disabled historical references and must not be
-used for production deployment.
+used for production deployment. `legacy/linux-runtime-before-restructure`
+preserves manual Node edits recovered from the superseded Linux runtime.
 
 Generated dependencies, build output, native prebuild output, uploaded images,
 model caches, and secrets remain outside Git.

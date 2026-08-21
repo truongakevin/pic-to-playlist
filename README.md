@@ -28,6 +28,7 @@ pic-to-playlist/
 │   └── label-curation/          # Genre-label experiments and tools
 ├── legacy/
 │   ├── flask-backend/           # Original standalone Flask backend
+│   ├── linux-runtime-before-restructure/ # Preserved manual Linux edits
 │   └── deployment-scripts/      # Disabled manual deployment history
 ├── docs/
 │   ├── ARCHITECTURE.md
