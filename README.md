@@ -56,7 +56,7 @@ npm run web
 cd backend/api
 cp .env.example .env
 npm ci
-npm start
+node server.js
 ```
 
 Production credentials are not stored in the repository. See
