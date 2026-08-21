@@ -1,0 +1,10 @@
+Flask==3.0.3
+Flask-Cors==4.0.1
+numpy==2.0.1
+pillow==10.4.0
+python-dotenv==1.0.1
+safetensors==0.4.4
+tokenizers==0.19.1
+torch==2.4.0
+transformers==4.44.2
+Werkzeug==3.0.4
