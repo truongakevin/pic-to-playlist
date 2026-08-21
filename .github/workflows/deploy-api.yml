@@ -1,4 +1,4 @@
-name: Test and deploy Pic-to-Playlist API
+name: Validate and deploy Pic-to-Playlist API
 
 on:
   push:
