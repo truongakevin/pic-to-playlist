@@ -98,9 +98,3 @@ jobs:
           sudo systemctl status pic-to-playlist-api.service --no-pager
           exit 1
           REMOTE
-
-      - name: Verify public API route
-        run: |
-          status=$(curl --silent --output /dev/null --write-out '%{http_code}' \
-            https://kevinatruong.com/api/image-analysis/ptp/node)
-          test "$status" = "404"

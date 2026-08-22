@@ -79,6 +79,6 @@ app.post('/analyze-photo-ptp', upload.single('image'), async (req, res) => {
 });
 
 // start server
-app.listen(process.env.NODE_PORT, () => {
-    console.log(`Server listening at ${process.env.NODE_ADDRESS || 'http://0.0.0.0'}:${process.env.NODE_PORT || 3000}`);
+app.listen(process.env.NODE_PORT, '127.0.0.1', () => {
+    console.log(`Server listening at http://127.0.0.1:${process.env.NODE_PORT || 3000}`);
 });
