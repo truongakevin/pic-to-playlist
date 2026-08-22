@@ -7,6 +7,7 @@ from dotenv import load_dotenv
 from io import BytesIO
 from PIL import Image
 from datetime import datetime
+from threading import Lock
 import base64
 import random
 import torch
@@ -23,7 +24,8 @@ from summarized_aesthetics import aesthetics
 
 app = Flask(__name__)
 CORS(app) 
-app.config['DEBUG'] = True
+app.config['DEBUG'] = os.getenv('FLASK_DEBUG', '').lower() in ('1', 'true', 'yes')
+inference_lock = Lock()
 
 # Load pre-trained model and processor
 processor_name = "openai/clip-vit-large-patch14-336"
@@ -56,7 +58,8 @@ def analyze_image_am():
         if app.config['DEBUG']:
             print("Image Received", flush=True)
     # process image
-    probabilities = process_images(images, aesthetics, 25, 1)
+    with inference_lock:
+        probabilities = process_images(images, aesthetics, 25, 1)
     if app.config['DEBUG']:
         print("Image Processed", flush=True)
     
@@ -90,7 +93,8 @@ def analyze_image_ptp():
         print("Image Received", flush=True)
         
     # Process image
-    probabilities = process_images([image], genres, 7, 5)
+    with inference_lock:
+        probabilities = process_images([image], genres, 7, 5)
     if app.config['DEBUG']:
         print("Image Processed", flush=True)
     json_data = [{'feature': feature, 'probability': probability} for feature, probability in probabilities]
@@ -143,4 +147,4 @@ def process_images(images, features, num_features=7, batch_splits=1):
     return top_categories
 
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=FLASK_PORT)
+    app.run(host='0.0.0.0', port=FLASK_PORT, use_reloader=False)
